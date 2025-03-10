@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "313898648012",
+    "project_id": "casadomotica-9bd92",
+    "storage_bucket": "casadomotica-9bd92.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:313898648012:android:112ece508fd94cac715d69",
+        "android_client_info": {
+          "package_name": "com.example.casadomotica"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDi8AzpuIAevSrqPweaRIgxyIPkudD022w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
