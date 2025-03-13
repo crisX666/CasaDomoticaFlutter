@@ -92,12 +92,19 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       child: const Text('Iniciar sesión', style: TextStyle(fontSize: 18)),
                     ),
-                  ],
+                const SizedBox(height: 16),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/register'); // Navega a la página de registro
+                  },
+                  child: const Text('¿No tienes cuenta? Regístrate aquí'),
                 ),
+                ],
               ),
             ),
           ),
         ),
+      ),
       ),
     );
   }
