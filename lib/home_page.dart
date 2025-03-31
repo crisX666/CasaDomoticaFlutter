@@ -57,11 +57,24 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  String _lastMusicCommand = "";
+
   void sendMusicCommand(String command) {
+    // Alternar entre mayúscula y minúscula
+    if (_lastMusicCommand == command.toUpperCase()) {
+      command = command.toLowerCase();
+    } else {
+      command = command.toUpperCase();
+    }
+
+    _lastMusicCommand = command; // Guardar el último comando enviado
+
     FirebaseFirestore.instance
         .collection('CasaDomotica')
         .doc('tsAekrRmFhyMdHcTcMAo')
         .update({'Musica': command});
+
+    print("Comando enviado: $command");
   }
 
   @override
