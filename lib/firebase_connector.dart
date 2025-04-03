@@ -10,7 +10,7 @@ class FirebaseConnector {
     );
   }
 
-  // Método para obtener los datos del documento en Firestore
+  //Método para obtener los datos del documento en Firestore
   static Future<Map<String, dynamic>?> getCasaDomoticaData() async {
     try {
       // Referencia al documento
