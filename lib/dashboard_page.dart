@@ -9,13 +9,13 @@ class DashboardPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           'Inicio',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Color.fromARGB(255, 0, 0, 0), fontWeight: FontWeight.bold),
           textAlign: TextAlign.center,
         ),
-        backgroundColor: const Color(0xFF4A479A), // Azul violeta oscuro
+        backgroundColor: const Color.fromARGB(255, 68, 138, 255), // Azul violeta oscuro
         elevation: 10,
       ),
-      backgroundColor: const Color(0xFFF2ECF9), // Fondo lila claro
+      backgroundColor: const Color.fromARGB(255, 236, 249, 241), // Fondo lila claro
       body: GridView.count(
         padding: const EdgeInsets.all(16.0),
         crossAxisCount: 2,
@@ -49,14 +49,14 @@ class DashboardPage extends StatelessWidget {
           Navigator.pushNamed(context, '/settings');
         } else if (title == 'Conexión') {
           Navigator.pushNamed(context, '/connection');
-        }
+        } 
       },
       child: Card(
         elevation: 5.0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16.0),
         ),
-        color: const Color(0xFFD4D1F0), // Fondo más claro para las tarjetas
+        color: const Color.fromARGB(255, 255, 255, 255), // Fondo más claro para las tarjetas
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Column(
@@ -65,7 +65,7 @@ class DashboardPage extends StatelessWidget {
               Icon(
                 icon,
                 size: 48,
-                color: const Color(0xFF4A479A), // Mismo azul violeta del AppBar
+                color: const Color.fromARGB(255, 68, 138, 255), // Mismo azul violeta del AppBar
               ),
               const SizedBox(height: 8.0),
               Text(
@@ -73,7 +73,7 @@ class DashboardPage extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF4A479A),
+                  color: Color.fromARGB(255, 0, 0, 0),
                 ),
               ),
             ],

@@ -6,6 +6,7 @@ import 'home_page.dart';
 import 'car_page.dart';
 import 'settings_page.dart';
 import 'logs_page.dart';
+import 'alerts_page.dart';
 import 'register_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';  // Asegúrate de que esta importación esté presente
@@ -43,6 +44,7 @@ class MyApp extends StatelessWidget {
         '/vehicle': (context) => const CarPage(),
         '/settings': (context) => const SettingsPage(),
         '/logs': (context) => const LogsPage(),
+        '/alerts': (context) => const AlertsPage(),
         '/register': (context) => const RegisterPage(),
       },
     );

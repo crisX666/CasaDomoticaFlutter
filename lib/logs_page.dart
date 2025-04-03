@@ -19,7 +19,7 @@ class LogsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Registros'),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: const Color.fromARGB(255, 68, 138, 255),
       ),
       body: FutureBuilder<Map<String, List<String>>>(
         future: _fetchLogs(), // Llamada para obtener los datos
@@ -63,7 +63,7 @@ class LogsPage extends StatelessWidget {
         children: logs.map((log) {
           return ListTile(
             title: Text(log),
-            leading: const Icon(Icons.history, color: Colors.deepPurple),
+            leading: const Icon(Icons.history, color: Color.fromARGB(255, 68, 138, 255)),
           );
         }).toList(),
       ),

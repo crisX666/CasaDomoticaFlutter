@@ -57,7 +57,7 @@ class SettingsPageState extends State<SettingsPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Configuración'),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: const Color.fromARGB(255, 68, 138, 255),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -106,8 +106,8 @@ class SettingsPageState extends State<SettingsPage> {
                 icon: const Icon(Icons.logout),
                 label: const Text('Cerrar sesión'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
+                  backgroundColor: const Color.fromARGB(255, 68, 138, 255),
+                  foregroundColor: const Color.fromARGB(255, 0, 0, 0),
                 ),
               ),
             ),

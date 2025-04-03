@@ -103,7 +103,7 @@ class _CarPageState extends State<CarPage> {
       ],
       rows: [
         _buildDataRow('Vehículo', carData!['NombreCarro'] ?? 'Sin Datos'),
-        _buildDataRow('Temperatura', '${carData!['TempCarro'] ?? 'Sin Datos'}°C'),
+        _buildDataRow('Velocidad', '${carData!['VelCarro'] ?? 'Sin Datos'}cm/s'),
         _buildDataRow('Batería', '${carData!['BateriaCarro'] ?? 'Sin Datos'}%'),
         _buildDataRow('Uptime', '${carData!['UptimeCarro'] ?? 'Sin Datos'} h'),
         _buildDataRow('Distancia Recorrida', '${carData!['DistRecorridaCarro'] ?? 'Sin Datos'} m'),
@@ -138,8 +138,8 @@ class _CarPageState extends State<CarPage> {
       alignment: WrapAlignment.center,
       children: [
         _carPageOption('Actualizar datos', Icons.update),
-        _carPageOption('Realizar recorrido', Icons.directions_car),
-        _carPageOption('Cancelar recorrido', Icons.cancel),
+        //_carPageOption('Realizar recorrido', Icons.directions_car),
+        //_carPageOption('Cancelar recorrido', Icons.cancel),
         _carPageOption('Control Manual', Icons.settings_remote),
       ],
     );

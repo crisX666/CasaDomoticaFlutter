@@ -15,32 +15,6 @@ class _HomePageState extends State<HomePage> {
   double temperature = 25.0;
   double humidity = 50.0;
 
-  @override
-  void initState() {
-    super.initState();
-    fetchData();
-  }
-
-  Future<void> fetchData() async {
-    try {
-      DocumentSnapshot doc = await FirebaseFirestore.instance
-          .collection('CasaDomotica')
-          .doc('tsAekrRmFhyMdHcTcMAo')
-          .get();
-      if (doc.exists) {
-        setState(() {
-          garageOpen = doc['CocheraCasa'] ?? false;
-          lightsOn = doc['LucesCasa'] ?? false;
-          fanOn = doc['VentiladorCasa'] ?? false;
-          temperature = (doc['TempCasa'] ?? 25).toDouble();
-          humidity = (doc['HumCasa'] ?? 50).toDouble();
-        });
-      }
-    } catch (e) {
-      print("Error al obtener datos: $e");
-    }
-  }
-
   Future<void> toggleState(String field, bool currentState) async {
     try {
       await FirebaseFirestore.instance
@@ -60,14 +34,13 @@ class _HomePageState extends State<HomePage> {
   String _lastMusicCommand = "";
 
   void sendMusicCommand(String command) {
-    // Alternar entre mayúscula y minúscula
     if (_lastMusicCommand == command.toUpperCase()) {
       command = command.toLowerCase();
     } else {
       command = command.toUpperCase();
     }
 
-    _lastMusicCommand = command; // Guardar el último comando enviado
+    _lastMusicCommand = command;
 
     FirebaseFirestore.instance
         .collection('CasaDomotica')
@@ -82,88 +55,76 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Casa - Detalles'),
-        backgroundColor: Color(0xFF3E4A89),
+        backgroundColor: Color.fromARGB(255, 68, 138, 255),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ControlTile(
-                    title: 'Garaje',
-                    state: garageOpen ? "Estado: Abierto" : "Estado: Cerrado",
-                    onPressed: () => toggleState('CocheraCasa', garageOpen),
-                  ),
-                  ControlTile(
-                    title: 'Luces',
-                    state: lightsOn ? "Estado: ON" : "Estado: OFF",
-                    onPressed: () => toggleState('LucesCasa', lightsOn),
-                  ),
-                  ControlTile(
-                    title: 'Ventilador',
-                    state: fanOn ? "Estado: ON" : "Estado: OFF",
-                    onPressed: () => toggleState('VentiladorCasa', fanOn),
-                  ),
-                  const SizedBox(height: 16),
-                  const Center(
-                    child: Text(
-                      'Estado Actual',
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF3E4A89)),
-                    ),
-                  ),
-                  Card(
-                    elevation: 4,
-                    color: Color(0xFFE0E5F5),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Temperatura: ${temperature.toStringAsFixed(1)}°C',
-                            style: const TextStyle(fontSize: 18, color: Color(0xFF3E4A89)),
-                          ),
-                          Text(
-                            'Humedad: ${humidity.toStringAsFixed(1)}%',
-                            style: const TextStyle(fontSize: 18, color: Color(0xFF3E4A89)),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+      body: StreamBuilder<DocumentSnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('CasaDomotica')
+            .doc('tsAekrRmFhyMdHcTcMAo')
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (!snapshot.hasData || !snapshot.data!.exists) {
+            return const Center(child: Text("No hay datos disponibles"));
+          }
+
+          var doc = snapshot.data!;
+          garageOpen = doc['CocheraCasa'] ?? false;
+          lightsOn = doc['LucesCasa'] ?? false;
+          fanOn = doc['VentiladorCasa'] ?? false;
+          temperature = double.tryParse(doc['TempCasa'].toString()) ?? 25.0;
+          humidity = double.tryParse(doc['HumCasa'].toString()) ?? 50.0;
+
+          return Column(
+            children: [
+              ControlTile(
+                title: 'Garaje',
+                state: garageOpen ? "Estado: Abierto" : "Estado: Cerrado",
+                onPressed: () => toggleState('CocheraCasa', garageOpen),
               ),
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(16.0),
-            color: Color(0xFFD4D9F0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF3E4A89)),
-                  onPressed: () => sendMusicCommand("B"),
-                  child: const Icon(Icons.fast_rewind, color: Colors.white),
+              ControlTile(
+                title: 'Luces',
+                state: lightsOn ? "Estado: ON" : "Estado: OFF",
+                onPressed: () => toggleState('LucesCasa', lightsOn),
+              ),
+              ControlTile(
+                title: 'Ventilador',
+                state: fanOn ? "Estado: ON" : "Estado: OFF",
+                onPressed: () => toggleState('VentiladorCasa', fanOn),
+              ),
+              const SizedBox(height: 16),
+              const Center(
+                child: Text(
+                  'Estado Actual',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
                 ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF3E4A89)),
-                  onPressed: () => sendMusicCommand("P"),
-                  child: const Icon(Icons.play_arrow, color: Colors.white),
+              ),
+              Card(
+                elevation: 4,
+                color: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Temperatura: ${temperature.toStringAsFixed(1)}°C',
+                        style: const TextStyle(fontSize: 18, color: Colors.black),
+                      ),
+                      Text(
+                        'Humedad: ${humidity.toStringAsFixed(1)}%',
+                        style: const TextStyle(fontSize: 18, color: Colors.black),
+                      ),
+                    ],
+                  ),
                 ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF3E4A89)),
-                  onPressed: () => sendMusicCommand("F"),
-                  child: const Icon(Icons.fast_forward, color: Colors.white),
-                ),
-              ],
-            ),
-          ),
-        ],
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -182,12 +143,12 @@ class ControlTile extends StatelessWidget {
       color: Color(0xFFE0E5F5),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
-        title: Text(title, style: TextStyle(color: Color(0xFF3E4A89), fontWeight: FontWeight.bold)),
-        subtitle: Text(state, style: TextStyle(color: Color(0xFF3E4A89))),
+        title: Text(title, style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        subtitle: Text(state, style: TextStyle(color: Color(0xFF2C3357))),
         trailing: ElevatedButton(
-          style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF3E4A89)),
+          style: ElevatedButton.styleFrom(backgroundColor: Color.fromARGB(255, 68, 138, 255)),
           onPressed: onPressed,
-          child: const Text('Alternar', style: TextStyle(color: Colors.white)),
+          child: const Text('Alternar', style: TextStyle(color: Colors.black)),
         ),
       ),
     );
