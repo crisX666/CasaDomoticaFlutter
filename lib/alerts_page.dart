@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
+import 'fetch_from_database.dart'; // Make sure this is the correct path
 
 class AlertsPage extends StatefulWidget {
   const AlertsPage({Key? key}) : super(key: key);
@@ -8,90 +10,151 @@ class AlertsPage extends StatefulWidget {
 }
 
 class _AlertsPageState extends State<AlertsPage> {
-  final List<Map<String, String>> sensorData = [
-    {'zona': 'Zona 1', 'estado': 'Despejado'},
-    {'zona': 'Zona 2', 'estado': 'Obstáculo detectado'},
-    {'zona': 'Zona 3', 'estado': 'Despejado'},
-    {'zona': 'Zona 4', 'estado': 'Obstáculo detectado'},
-    {'zona': 'Zona 5', 'estado': 'Despejado'},
-    {'zona': 'Zona 6', 'estado': 'Obstáculo detectado'},
-    {'zona': 'Zona 7', 'estado': 'Despejado'},
+  Map<String, dynamic>? sensorRawData;
+  Timer? _timer;
+
+  final List<String> zonas = [
+    'zona1',
+    'zona2',
+    'zona3',
+    'zona4',
+    'zona5',
+    'zona6',
+    'zona7',
   ];
 
-  Color _getEstadoColor(String estado) {
-    if (estado == 'Despejado') {
-      return Colors.green;
-    } else {
-      return Colors.red;
+  Future<void> fetchSensorData() async {
+    final data = await fetchDocumentData('prueba');
+    if (data != null) {
+      setState(() {
+        sensorRawData = data;
+      });
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchSensorData();
+
+    // Optional: auto-refresh every 6 seconds
+    _timer = Timer.periodic(
+      const Duration(seconds: 6),
+          (_) => fetchSensorData(),
+    );
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  Color _getEstadoColor(String estado) {
+    return estado == 'Despejado' ? Colors.green : Colors.red;
+  }
+
+  String _parseEstado(String value) {
+    return value == "0" ? 'Despejado' : 'Obstáculo detectado';
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.blueGrey[50],
       appBar: AppBar(
         title: const Text('Estado de Sensores'),
-        backgroundColor: Colors.blue,
+        backgroundColor: Colors.blueAccent,
       ),
-      body: Column(
-        children: [
-          Expanded(
-            flex: 2,
-            child: Container(
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/images/ZonasCasa.png'),
-                  fit: BoxFit.contain,
+      body: sensorRawData == null
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              // Image
+              Container(
+                width: double.infinity,
+                height: 250,
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('assets/images/ZonasCasa.png'),
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
-            ),
+              const SizedBox(height: 20),
+              _buildCard('Zonas y Estados', _buildSensorTable()),
+            ],
           ),
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Text('Zona', style: TextStyle(fontWeight: FontWeight.bold)),
-                Text('Estado', style: TextStyle(fontWeight: FontWeight.bold)),
-              ],
-            ),
-          ),
-          Expanded(
-            flex: 3,
-            child: SingleChildScrollView(
-              child: Table(
-                border: TableBorder.all(color: Colors.grey),
-                columnWidths: const {
-                  0: FlexColumnWidth(1),
-                  1: FlexColumnWidth(2),
-                },
-                children: sensorData.map((item) {
-                  final estado = item['estado']!;
-                  return TableRow(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(item['zona']!),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          estado,
-                          style: TextStyle(
-                            color: _getEstadoColor(estado),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildCard(String title, Widget content) {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title,
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            content,
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSensorTable() {
+    return Table(
+      border: TableBorder.all(color: Colors.grey),
+      columnWidths: const {
+        0: FlexColumnWidth(1),
+        1: FlexColumnWidth(2),
+      },
+      children: [
+        const TableRow(
+          children: [
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text('Zona', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text('Estado', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+        ...zonas.map((zonaKey) {
+          final value = sensorRawData?[zonaKey] ?? '0';
+          final estado = _parseEstado(value);
+          return TableRow(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(zonaKey.toUpperCase().replaceAll('ZONA', 'Zona ')),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  estado,
+                  style: TextStyle(
+                    color: _getEstadoColor(estado),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          );
+        }).toList(),
+      ],
     );
   }
 }

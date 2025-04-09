@@ -57,6 +57,7 @@ class _CarPageState extends State<CarPage> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
+              Align(alignment: Alignment.center),
               _buildCard('Estado Actual', _buildDataTable()),
               const SizedBox(height: 20),
               _buildOptionsMenu(),
