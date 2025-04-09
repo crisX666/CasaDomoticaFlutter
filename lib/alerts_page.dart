@@ -8,98 +8,89 @@ class AlertsPage extends StatefulWidget {
 }
 
 class _AlertsPageState extends State<AlertsPage> {
-  // Datos ficticios para 4 sectores
-  List<Map<String, dynamic>> sectors = [
-    {'sectorName': 'Sector 1', 'obstacle': false},
-    {'sectorName': 'Sector 2', 'obstacle': true},
-    {'sectorName': 'Sector 3', 'obstacle': false},
-    {'sectorName': 'Sector 4', 'obstacle': true},
-    {'sectorName': 'Sector 5', 'obstacle': true},
-    {'sectorName': 'Sector 6', 'obstacle': true},
-    {'sectorName': 'Sector 7', 'obstacle': true},
+  final List<Map<String, String>> sensorData = [
+    {'zona': 'Zona 1', 'estado': 'Despejado'},
+    {'zona': 'Zona 2', 'estado': 'Obstáculo detectado'},
+    {'zona': 'Zona 3', 'estado': 'Despejado'},
+    {'zona': 'Zona 4', 'estado': 'Obstáculo detectado'},
+    {'zona': 'Zona 5', 'estado': 'Despejado'},
+    {'zona': 'Zona 6', 'estado': 'Obstáculo detectado'},
+    {'zona': 'Zona 7', 'estado': 'Despejado'},
   ];
 
-  // Función para alternar el estado del obstáculo en un sector
-  void toggleObstacle(int index) {
-    setState(() {
-      sectors[index]['obstacle'] = !sectors[index]['obstacle'];
-    });
+  Color _getEstadoColor(String estado) {
+    if (estado == 'Despejado') {
+      return Colors.green;
+    } else {
+      return Colors.red;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Calcula el ancho disponible para cada tarjeta (2 columnas)
-    final double screenWidth = MediaQuery.of(context).size.width;
-    // Considera padding horizontal de 16 a cada lado y 16 de espacio entre tarjetas
-    final double itemWidth = (screenWidth - 16 * 3) / 2;
-    // Fija una altura para cada tarjeta, por ejemplo 1.2 veces el ancho
-    final double itemHeight = itemWidth * 1.2;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Estado de Sensores'),
-        backgroundColor: const Color.fromARGB(255, 68, 138, 255),
+        backgroundColor: Colors.blue,
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Wrap(
-            spacing: 16.0,
-            runSpacing: 16.0,
-            children: List.generate(sectors.length, (index) {
-              final sector = sectors[index];
-              final String sectorName = sector['sectorName'];
-              final bool obstacle = sector['obstacle'];
-
-              return Container(
-                width: itemWidth,
-                height: itemHeight,
-                child: Card(
-                  elevation: 4.0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          children: [
-                            Icon(
-                              obstacle ? Icons.warning : Icons.check_circle,
-                              size: 48,
-                              color: obstacle ? Colors.red : Colors.green,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              sectorName,
-                              style: const TextStyle(
-                                fontSize: 18, 
-                                fontWeight: FontWeight.bold
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              obstacle
-                                  ? 'Obstáculo detectado'
-                                  : 'Sin obstáculo',
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                          ],
-                        ),
-                        ElevatedButton(
-                          onPressed: () => toggleObstacle(index),
-                          child: const Text('Alternar'),
-                        ),
-                      ],
-                    ),
-                  ),
+      body: Column(
+        children: [
+          Expanded(
+            flex: 2,
+            child: Container(
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/ZonasCasa.png'),
+                  fit: BoxFit.contain,
                 ),
-              );
-            }),
+              ),
+            ),
           ),
-        ),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text('Zona', style: TextStyle(fontWeight: FontWeight.bold)),
+                Text('Estado', style: TextStyle(fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: SingleChildScrollView(
+              child: Table(
+                border: TableBorder.all(color: Colors.grey),
+                columnWidths: const {
+                  0: FlexColumnWidth(1),
+                  1: FlexColumnWidth(2),
+                },
+                children: sensorData.map((item) {
+                  final estado = item['estado']!;
+                  return TableRow(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(item['zona']!),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          estado,
+                          style: TextStyle(
+                            color: _getEstadoColor(estado),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

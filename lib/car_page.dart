@@ -1,6 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'dart:async'; //para actualizar los datos cada cierto tiempo
+import 'fetch_from_database.dart';
 
 class CarPage extends StatefulWidget {
   const CarPage({super.key});
@@ -11,23 +11,17 @@ class CarPage extends StatefulWidget {
 
 class _CarPageState extends State<CarPage> {
   Map<String, dynamic>? carData;
+  Map<String, dynamic>? pruebaData;
   Timer? _timer;
 
   Future<void> fetchCarData() async {
-    try {
-      DocumentSnapshot doc = await FirebaseFirestore.instance //Colección y documento que contiene los datos
-          .collection('CasaDomotica')
-          .doc('tsAekrRmFhyMdHcTcMAo')
-          .get();
-      if (doc.exists) {
-        setState(() {
-          carData = doc.data() as Map<String, dynamic>;
-        });
-      } else {
-        print("Documento no encontrado");  //ELIMINAR EN PRODUCCIÓN, PARA TESTEO
-      }
-    } catch (e) {
-      print("Error al obtener datos: $e");
+    final data = await fetchDocumentData('tsAekrRmFhyMdHcTcMAo');
+    final prueba = await fetchDocumentData('prueba');
+    if (data != null) {
+      setState(() {
+        carData = data;
+        pruebaData = prueba;
+      });
     }
   }
 
@@ -36,9 +30,10 @@ class _CarPageState extends State<CarPage> {
     super.initState();
     fetchCarData();
 
-    _timer = Timer.periodic(const Duration(minutes: 1), (timer) { //timer de 1 minuto para actualizar los datos
-      fetchCarData();
-    });
+    _timer = Timer.periodic(
+      const Duration(seconds: 6),
+          (_) => fetchCarData(),
+    );
   }
 
   @override
@@ -63,8 +58,6 @@ class _CarPageState extends State<CarPage> {
           child: Column(
             children: [
               _buildCard('Estado Actual', _buildDataTable()),
-              const SizedBox(height: 20),
-              _buildCard('Tareas Completadas', _buildCompletedTasks()),
               const SizedBox(height: 20),
               _buildOptionsMenu(),
             ],
@@ -103,8 +96,8 @@ class _CarPageState extends State<CarPage> {
       ],
       rows: [
         _buildDataRow('Vehículo', carData!['NombreCarro'] ?? 'Sin Datos'),
-        _buildDataRow('Velocidad', '${carData!['VelCarro'] ?? 'Sin Datos'}cm/s'),
-        _buildDataRow('Batería', '${carData!['BateriaCarro'] ?? 'Sin Datos'}%'),
+        _buildDataRow('Velocidad', '${pruebaData!['velocidad'] ?? '0'}cm/s'),
+        _buildDataRow('Batería', '${pruebaData!['porcentaje'] ?? 'Sin datos'}%'),
         _buildDataRow('Uptime', '${carData!['UptimeCarro'] ?? 'Sin Datos'} h'),
         _buildDataRow('Distancia Recorrida', '${carData!['DistRecorridaCarro'] ?? 'Sin Datos'} m'),
       ],
@@ -118,18 +111,7 @@ class _CarPageState extends State<CarPage> {
     ]);
   }
 
-  Widget _buildCompletedTasks() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
-        _TaskItem(task: 'Revisión de motor'),
-        _TaskItem(task: 'Chequeo de batería'),
-        _TaskItem(task: 'Calibración de sensores'),
-        _TaskItem(task: 'Actualización de software'),
-        _TaskItem(task: 'Inspección de neumáticos'),
-      ],
-    );
-  }
+
 
   Widget _buildOptionsMenu() {
     return Wrap(
@@ -149,7 +131,7 @@ class _CarPageState extends State<CarPage> {
     return GestureDetector(
       onTap: () {
         if (title == 'Actualizar datos') {
-          fetchCarData();
+          fetchCarData(); // 👈 sigue funcionando igual, solo usa lógica externa ahora
         }
       },
       child: Card(

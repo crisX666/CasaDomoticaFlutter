@@ -40,11 +40,11 @@ class MyApp extends StatelessWidget {
         User? user = FirebaseAuth.instance.currentUser;
 
         if (user == null && settings.name != '/login' && settings.name != '/register') {
-          // Si no está autenticado y la ruta no es login/registro, envíalo al login
+          // si no esta autenticado, se redirige al login
           return MaterialPageRoute(builder: (context) => const LoginPage());
         }
 
-        // Define las rutas permitidas
+        //rutas protegidas
         switch (settings.name) {
           case '/dashboard':
             return MaterialPageRoute(builder: (context) => const DashboardPage());

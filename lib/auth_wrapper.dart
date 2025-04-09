@@ -15,9 +15,9 @@ class AuthWrapper extends StatelessWidget {
           return const Scaffold(body: Center(child: CircularProgressIndicator()));
         }
         if (snapshot.hasData) {
-          return const HomePage(); // Usuario autenticado
+          return const HomePage(); //usuarios autenticados
         } else {
-          return const LoginPage(); // No autenticado, ir a login
+          return const LoginPage(); //usuarios no autenticados
         }
       },
     );
