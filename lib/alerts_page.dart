@@ -14,13 +14,13 @@ class _AlertsPageState extends State<AlertsPage> {
   Timer? _timer;
 
   final List<String> zonas = [
-    'zona1',
-    'zona2',
-    'zona3',
-    'zona4',
-    'zona5',
-    'zona6',
-    'zona7',
+    'Zona1',
+    'Zona2',
+    'Zona3',
+    'Zona4',
+    'Zona5',
+    'Zona6',
+    'Zona7',
   ];
 
   Future<void> fetchSensorData() async {

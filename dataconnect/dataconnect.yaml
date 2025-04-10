@@ -1,4 +1,4 @@
-specVersion: "v1beta"
+specVersion: "v1"
 serviceId: "casadomotica"
 location: "us-central1"
 schema:

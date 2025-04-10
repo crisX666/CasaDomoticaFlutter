@@ -132,7 +132,7 @@ class _CarPageState extends State<CarPage> {
     return GestureDetector(
       onTap: () {
         if (title == 'Actualizar datos') {
-          fetchCarData(); // 👈 sigue funcionando igual, solo usa lógica externa ahora
+          fetchCarData(); //lógica externa
         }
       },
       child: Card(

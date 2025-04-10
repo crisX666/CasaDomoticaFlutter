@@ -9,29 +9,24 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final String mainDocId = 'tsAekrRmFhyMdHcTcMAo';
+  final String sensorDocId = 'prueba'; // Nuevo documento para temperatura y humedad
+
   bool garageOpen = false;
   bool lightsOn = false;
   bool fanOn = false;
-  double temperature = 25.0;
-  double humidity = 50.0;
+  String _lastMusicCommand = "";
 
   Future<void> toggleState(String field, bool currentState) async {
     try {
       await FirebaseFirestore.instance
           .collection('CasaDomotica')
-          .doc('tsAekrRmFhyMdHcTcMAo')
+          .doc(mainDocId)
           .update({field: !currentState});
-      setState(() {
-        if (field == 'CocheraCasa') garageOpen = !garageOpen;
-        if (field == 'LucesCasa') lightsOn = !lightsOn;
-        if (field == 'VentiladorCasa') fanOn = !fanOn;
-      });
     } catch (e) {
       print("Error al actualizar datos: $e");
     }
   }
-
-  String _lastMusicCommand = "";
 
   void sendMusicCommand(String command) {
     if (_lastMusicCommand == command.toUpperCase()) {
@@ -44,7 +39,7 @@ class _HomePageState extends State<HomePage> {
 
     FirebaseFirestore.instance
         .collection('CasaDomotica')
-        .doc('tsAekrRmFhyMdHcTcMAo')
+        .doc(mainDocId)
         .update({'Musica': command});
 
     print("Comando enviado: $command");
@@ -60,7 +55,7 @@ class _HomePageState extends State<HomePage> {
       body: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance
             .collection('CasaDomotica')
-            .doc('tsAekrRmFhyMdHcTcMAo')
+            .doc(mainDocId)
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -74,8 +69,6 @@ class _HomePageState extends State<HomePage> {
           garageOpen = doc['CocheraCasa'] ?? false;
           lightsOn = doc['LucesCasa'] ?? false;
           fanOn = doc['VentiladorCasa'] ?? false;
-          temperature = double.tryParse(doc['TempCasa'].toString()) ?? 25.0;
-          humidity = double.tryParse(doc['HumCasa'].toString()) ?? 50.0;
 
           return Column(
             children: [
@@ -101,26 +94,47 @@ class _HomePageState extends State<HomePage> {
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
                 ),
               ),
-              Card(
-                elevation: 4,
-                color: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Temperatura: ${temperature.toStringAsFixed(1)}°C',
-                        style: const TextStyle(fontSize: 18, color: Colors.black),
+
+              /// 🔽 Nuevo StreamBuilder para temperatura y humedad
+              StreamBuilder<DocumentSnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('CasaDomotica')
+                    .doc(sensorDocId)
+                    .snapshots(),
+                builder: (context, sensorSnapshot) {
+                  if (sensorSnapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  }
+                  if (!sensorSnapshot.hasData || !sensorSnapshot.data!.exists) {
+                    return const Text("Datos de sensores no disponibles");
+                  }
+
+                  final sensorData = sensorSnapshot.data!;
+                  final double temperature = double.tryParse(sensorData['TempCasa'].toString()) ?? 25.0;
+                  final double humidity = double.tryParse(sensorData['HumCasa'].toString()) ?? 50.0;
+
+                  return Card(
+                    elevation: 4,
+                    color: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Temperatura: ${temperature.toStringAsFixed(1)}°C',
+                            style: const TextStyle(fontSize: 18, color: Colors.black),
+                          ),
+                          Text(
+                            'Humedad: ${humidity.toStringAsFixed(1)}%',
+                            style: const TextStyle(fontSize: 18, color: Colors.black),
+                          ),
+                        ],
                       ),
-                      Text(
-                        'Humedad: ${humidity.toStringAsFixed(1)}%',
-                        style: const TextStyle(fontSize: 18, color: Colors.black),
-                      ),
-                    ],
-                  ),
-                ),
+                    ),
+                  );
+                },
               ),
             ],
           );
